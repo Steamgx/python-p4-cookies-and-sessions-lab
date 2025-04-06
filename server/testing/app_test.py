@@ -19,8 +19,18 @@ class TestApp:
             # Create test client
             client = app.test_client()
             
-            # Get test article
+            # Create test article if it doesn't exist
             article = db.session.get(Article, 1)
+            if not article:
+                article = Article(
+                    id=1,
+                    title="Test Article",
+                    content="Test content",
+                    author="Test Author",
+                    date="2023-01-01"
+                )
+                db.session.add(article)
+                db.session.commit()
             
             # Make request
             response = client.get('/articles/1')
@@ -40,6 +50,20 @@ class TestApp:
             with client.session_transaction() as sess:
                 sess.clear()
             
+            # Ensure test article exists
+            with app.app_context():
+                article = db.session.get(Article, 1)
+                if not article:
+                    article = Article(
+                        id=1,
+                        title="Test Article", 
+                        content="Test content",
+                        author="Test Author",
+                        date="2023-01-01"
+                    )
+                    db.session.add(article)
+                    db.session.commit()
+            
             # First view
             client.get('/articles/1')
             with client.session_transaction() as sess:
@@ -56,6 +80,20 @@ class TestApp:
             # Clear session
             with client.session_transaction() as sess:
                 sess.clear()
+            
+            # Ensure test article exists
+            with app.app_context():
+                article = db.session.get(Article, 1)
+                if not article:
+                    article = Article(
+                        id=1,
+                        title="Test Article",
+                        content="Test content",
+                        author="Test Author",
+                        date="2023-01-01"
+                    )
+                    db.session.add(article)
+                    db.session.commit()
             
             # First 3 views should work
             for i in range(3):
